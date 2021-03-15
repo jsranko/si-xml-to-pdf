@@ -19,14 +19,13 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
+import freemarker.ext.dom.NodeModel;
 
 public class FreemarkerGenerator {
 	private Configuration cfg;
 	private File templateDir = null;
-	private Map dataModel = null;
 	private String pathToPDF = null;
 	private PdfRendererBuilder builder;
-	private Locale locale;
 	
 	/**
 	 * @param pathToTemplate
@@ -49,14 +48,9 @@ public class FreemarkerGenerator {
 	 * @throws IOException 
 	 * @throws SAXException 
 	 */
-	public FreemarkerGenerator(String pathToTemplateDir, String pathToData, Locale locale) throws SAXException, IOException, ParserConfigurationException {
+	public FreemarkerGenerator(String pathToTemplateDir) throws IOException {
 		this();
 		setTemplateDir(pathToTemplateDir);
-		this.locale = locale;
-		
-		File data = new File(pathToData);
-		this.dataModel = new HashMap();
-		this.dataModel.put(getFileExtension(data), freemarker.ext.dom.NodeModel.parse(data));
 	}
 
 	public void setTemplateDir(String pathToTemplateDir) {
@@ -72,11 +66,11 @@ public class FreemarkerGenerator {
         return directory.toPath().resolve(templateName).toUri().toString();
     }
 	
-    public byte[] generatePDF(String templateName) throws IOException, TemplateException {
+    public byte[] generatePDF(Map modelData, String templateName, Locale locale) throws ParserConfigurationException, SAXException, IOException, TemplateException {
 
         String baseDocumentUri = createBaseDocumentUri(templateName);
         
-        String html = generateHTML(templateName);
+        String html = generateHTML(modelData, templateName, locale);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         builder.withHtmlContent(html, baseDocumentUri);
@@ -89,10 +83,11 @@ public class FreemarkerGenerator {
         
     }
     
-    public String generateHTML(String templateName) throws IOException, TemplateException {
+    public String generateHTML(Map modelData, String templateName, Locale locale) throws ParserConfigurationException, SAXException, IOException, TemplateException {
+		
 		StringWriter stringWriter = new StringWriter();
 		cfg.setDirectoryForTemplateLoading(templateDir);
-		cfg.getTemplate(templateName, this.locale, "UTF-8").process(this.dataModel, stringWriter);
+		cfg.getTemplate(templateName, locale, "UTF-8").process(modelData, stringWriter);
 		return stringWriter.toString();
 	}
     

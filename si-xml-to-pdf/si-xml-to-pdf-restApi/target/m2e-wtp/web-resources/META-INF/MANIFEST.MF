@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: si-xml-to-pdf-restApi
-Implementation-Version: 2.4.3
-Build-Jdk-Spec: 1.8
-Created-By: Maven Integration for Eclipse
-

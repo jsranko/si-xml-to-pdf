@@ -25,9 +25,9 @@ class TestFreemarkerGenerator {
 	static
 	void generateHTML() throws IOException, TemplateException, SAXException, ParserConfigurationException {
 
-		FreemarkerGenerator fgen = new FreemarkerGenerator(src, src.concat("test.xml"), Locale.GERMAN);
+		FreemarkerGenerator fgen = new FreemarkerGenerator(src);
 
-		String html = fgen.generateHTML("test.ftl");
+		String html = fgen.generateHTML(src.concat("test.xml"), "test.ftl", Locale.GERMAN);
 
 		assertEquals("<html>Datan aus Element 1</html>", html, "HTML generate");
 	}
@@ -36,9 +36,9 @@ class TestFreemarkerGenerator {
 	static
 	void generatePDF() throws IOException, TemplateException, SAXException, ParserConfigurationException {
 
-		FreemarkerGenerator fgen = new FreemarkerGenerator(src, src.concat("test.xml"), Locale.GERMAN);
+		FreemarkerGenerator fgen = new FreemarkerGenerator(src);
 
-		byte[] pdf = fgen.generatePDF("test.ftl");
+		byte[] pdf = fgen.generatePDF(src.concat("test.xml"), "test.ftl", Locale.GERMAN);
 
 		//assertEquals("<html>Datan aus Element 1</html>", html, "HTML generate");
 	}

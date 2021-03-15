@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <title>Test Book</title>
+  <exampleObject>
+    <name>Ch1</name>
+    <developer>p1.1</developer>
+  </exampleObject>
+</book>

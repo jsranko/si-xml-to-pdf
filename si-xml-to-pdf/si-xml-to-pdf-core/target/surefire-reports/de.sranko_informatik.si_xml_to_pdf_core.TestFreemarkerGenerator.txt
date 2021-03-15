@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: de.sranko_informatik.si_xml_to_pdf_core.TestFreemarkerGenerator
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.467 sec
