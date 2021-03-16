@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.io.File;
 import java.io.StringReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.HashMap;
@@ -42,14 +42,14 @@ public class PDFApiController
 			)
     public @ResponseBody byte[] getPDF(@RequestBody String payload) throws FileNotFoundException 
     {
+		File file = new File("/tmp/si-xml-to-pdf.log");
+		PrintWriter ps = new PrintWriter(file);
+		ps.println(payload);
+		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		JSONPayload req;
-
-		
-		
-		File file = new File("test.log");
-		PrintStream ps = new PrintStream(file);
+		ps.println(req.toString());
 		
 		
 		try {
@@ -68,10 +68,10 @@ public class PDFApiController
 		Map dataModel = new HashMap();
 		
 		switch(req.getDatenTyp()){ 
-        case MediaType.APPLICATION_JSON_VALUE: 
+        case "json": 
         	dataModel.put("json", req.getData());
             break; 
-        case MediaType.APPLICATION_XML_VALUE: 
+        case "xml": 
     		try {
     			InputSource inputSource = new InputSource( new StringReader(req.getData()));
     			dataModel.put("xml", NodeModel.parse(inputSource));

@@ -16,4 +16,8 @@ public class JSONPayload {
 	public String getDatenTyp() {
 		return this.datenTyp;
 	}
+	
+	public String toString() {
+		return this.template + " | " + this.datenTyp + " | " + this.data; 
+	}
 }
