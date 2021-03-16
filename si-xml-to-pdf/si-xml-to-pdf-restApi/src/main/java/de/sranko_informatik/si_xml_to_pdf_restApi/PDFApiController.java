@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.io.File;
 import java.io.StringReader;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.HashMap;
@@ -42,29 +42,28 @@ public class PDFApiController
 			)
     public @ResponseBody byte[] getPDF(@RequestBody String payload) throws FileNotFoundException 
     {
+		
 		File file = new File("/tmp/si-xml-to-pdf.log");
-		PrintWriter ps = new PrintWriter(file);
-		ps.println(payload);
+		PrintStream ps = new PrintStream(file);
+		ps.println(payload);ps.flush();
+		System.setOut(ps);
+		System.setErr(ps);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		JSONPayload req;
-		ps.println(req.toString());
-		
 		
 		try {
 			req = mapper.readValue(payload, JSONPayload.class);
+			ps.println(req.toString());ps.flush();
 		} catch (JsonProcessingException sxe ) {
-			sxe.printStackTrace(ps);
+			sxe.printStackTrace(ps);ps.flush();
 			//throw new ResponseStatusException(HttpStatus.NOT_FOUND, "XML parsing problem.", sxe);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "XML parsing problem", sxe);
 		}
 		
 		File templateFile = new File(req.getTemplate());
 
-		
-		
-		//File data = new File(req.getData());
 		Map dataModel = new HashMap();
 		
 		switch(req.getDatenTyp()){ 
@@ -76,7 +75,7 @@ public class PDFApiController
     			InputSource inputSource = new InputSource( new StringReader(req.getData()));
     			dataModel.put("xml", NodeModel.parse(inputSource));
     		} catch (IOException|SAXException|ParserConfigurationException ioe ) {
-    			ioe.printStackTrace(ps);
+    			ioe.printStackTrace(ps);ps.flush();
     			//throw new ResponseStatusException(HttpStatus.NOT_FOUND, "XML parsing problem.", ioe);
     			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "XML parsing problem", ioe);
     		}
@@ -91,6 +90,7 @@ public class PDFApiController
 		try {
 			fgen = new FreemarkerGenerator(templateFile.getParent());
 		} catch (IOException ioe ) {
+			ioe.printStackTrace(ps);ps.flush();
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Generator konnte nicht gestartet werden", ioe);
 		}
 		
@@ -99,17 +99,14 @@ public class PDFApiController
 		try {
 			pdf = fgen.generatePDF(dataModel, tplName.getName(), Locale.GERMAN);
 		} catch (TemplateException|IOException te ) {
-		    System.out.println("Tempalte nicht gefunden Problem");
-		    te.printStackTrace();
-		    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Template nicht gefunden.", te);
+		    te.printStackTrace(ps);ps.flush();
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Template systax problem. More details see in ".concat(file.getAbsolutePath()), te);
 		} catch  (SAXException sxe) {
-		    System.out.println("Parsing Problem.");
-		    sxe.printStackTrace();
-		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing konnte nicht ausgefuhrt werden.", sxe);
+		    sxe.printStackTrace(ps);ps.flush();
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing konnte nicht ausgefuhrt werden. More details see in ".concat(file.getAbsolutePath()), sxe);
 		} catch  (ParserConfigurationException pce) {
-		    System.out.println("Parser Configuration Problem.");
-		    pce.printStackTrace();
-		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parser Configuration Problem.", pce);
+		    pce.printStackTrace(ps);ps.flush();
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parser Configuration Problem. More details see in ".concat(file.getAbsolutePath()), pce);
 		}
 		return pdf; 
     }

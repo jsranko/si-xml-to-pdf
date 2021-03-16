@@ -50,6 +50,7 @@ public class FreemarkerGenerator {
 	 */
 	public FreemarkerGenerator(String pathToTemplateDir) throws IOException {
 		this();
+		System.out.println("Template-Dir: ".concat(pathToTemplateDir));
 		setTemplateDir(pathToTemplateDir);
 	}
 
@@ -58,7 +59,7 @@ public class FreemarkerGenerator {
 	}
 	
 	public String getTemplateDirectory() {
-		return this.templateDir.getParent();
+		return this.templateDir.getAbsolutePath();
 	}
 
 	private String createBaseDocumentUri(String templateName) {
@@ -71,6 +72,7 @@ public class FreemarkerGenerator {
         String baseDocumentUri = createBaseDocumentUri(templateName);
         
         String html = generateHTML(modelData, templateName, locale);
+        System.out.println(baseDocumentUri);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         builder.withHtmlContent(html, baseDocumentUri);
