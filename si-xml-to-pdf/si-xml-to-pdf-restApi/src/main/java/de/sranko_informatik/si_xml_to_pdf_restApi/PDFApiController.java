@@ -1,6 +1,8 @@
 package de.sranko_informatik.si_xml_to_pdf_restApi;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import java.lang.StringBuilder;
  
 @RestController
 public class PDFApiController
@@ -43,11 +46,6 @@ public class PDFApiController
     public @ResponseBody byte[] getPDF(@RequestBody String payload) throws FileNotFoundException 
     {
 		
-		File file = new File("/tmp/si-xml-to-pdf.log");
-		PrintStream ps = new PrintStream(file);
-		ps.println(payload);ps.flush();
-		System.setOut(ps);
-		System.setErr(ps);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
@@ -55,34 +53,33 @@ public class PDFApiController
 		
 		try {
 			req = mapper.readValue(payload, JSONPayload.class);
-			ps.println(req.toString());ps.flush();
 		} catch (JsonProcessingException sxe ) {
-			sxe.printStackTrace(ps);ps.flush();
-			//throw new ResponseStatusException(HttpStatus.NOT_FOUND, "XML parsing problem.", sxe);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "XML parsing problem", sxe);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
 		}
 		
 		File templateFile = new File(req.getTemplate());
 
 		Map dataModel = new HashMap();
+		ObjectMapper mapJson = new ObjectMapper();
 		
 		switch(req.getDatenTyp()){ 
-        case "json": 
-        	dataModel.put("json", req.getData());
-            break; 
+
         case "xml": 
     		try {
     			InputSource inputSource = new InputSource( new StringReader(req.getData()));
     			dataModel.put("xml", NodeModel.parse(inputSource));
     		} catch (IOException|SAXException|ParserConfigurationException ioe ) {
-    			ioe.printStackTrace(ps);ps.flush();
-    			//throw new ResponseStatusException(HttpStatus.NOT_FOUND, "XML parsing problem.", ioe);
-    			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "XML parsing problem", ioe);
+    			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(ioe), ioe);
     		}
     		
             break; 
         default: 
-        	dataModel.put("json", req.getData());
+        	//dataModel.put("json", req.getData());
+    		try {
+    			dataModel.put("json", mapJson.readValue(req.getData(), Map.class));
+    		} catch (JsonProcessingException sxe ) {
+    			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
+    		}
             break; 
         } 
 	   
@@ -90,8 +87,7 @@ public class PDFApiController
 		try {
 			fgen = new FreemarkerGenerator(templateFile.getParent());
 		} catch (IOException ioe ) {
-			ioe.printStackTrace(ps);ps.flush();
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Generator konnte nicht gestartet werden", ioe);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, convertStackTraceToString(ioe), ioe);
 		}
 		
 		File tplName = new File(req.getTemplate());
@@ -99,15 +95,101 @@ public class PDFApiController
 		try {
 			pdf = fgen.generatePDF(dataModel, tplName.getName(), Locale.GERMAN);
 		} catch (TemplateException|IOException te ) {
-		    te.printStackTrace(ps);ps.flush();
-		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Template systax problem. More details see in ".concat(file.getAbsolutePath()), te);
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
 		} catch  (SAXException sxe) {
-		    sxe.printStackTrace(ps);ps.flush();
-		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing konnte nicht ausgefuhrt werden. More details see in ".concat(file.getAbsolutePath()), sxe);
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
 		} catch  (ParserConfigurationException pce) {
-		    pce.printStackTrace(ps);ps.flush();
-		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Parser Configuration Problem. More details see in ".concat(file.getAbsolutePath()), pce);
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(pce), pce);
 		}
 		return pdf; 
     }
+	
+	@RequestMapping(
+			  value = "/getHTML",
+			  method = RequestMethod.POST,
+			  headers = "Accept=application/json",
+			  produces = MediaType.TEXT_HTML_VALUE
+			)
+  public @ResponseBody String getHTML(@RequestBody String payload) throws FileNotFoundException 
+  {
+			
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+		JSONPayload req;
+		
+		try {
+			req = mapper.readValue(payload, JSONPayload.class);
+		} catch (JsonProcessingException sxe ) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
+		}
+		
+		File templateFile = new File(req.getTemplate());
+
+		Map dataModel = new HashMap();
+		ObjectMapper mapJson = new ObjectMapper();
+		
+		switch(req.getDatenTyp()){ 
+
+      case "xml": 
+  		try {
+  			InputSource inputSource = new InputSource( new StringReader(req.getData()));
+  			dataModel.put("xml", NodeModel.parse(inputSource));
+  		} catch (IOException|SAXException|ParserConfigurationException ioe ) {
+  			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(ioe), ioe);
+  		}
+  		
+          break; 
+      default: 
+      	//dataModel.put("json", req.getData());
+  		try {
+  			dataModel.put("json", mapJson.readValue(req.getData(), Map.class));
+  		} catch (JsonProcessingException sxe ) {
+  			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
+  		}
+          break; 
+      } 
+	   
+		FreemarkerGenerator fgen;
+		try {
+			fgen = new FreemarkerGenerator(templateFile.getParent());
+		} catch (IOException ioe ) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, convertStackTraceToString(ioe), ioe);
+		}
+		
+		File tplName = new File(req.getTemplate());
+		String html;
+		try {
+			html = fgen.generateHTML(dataModel, tplName.getName(), Locale.GERMAN);
+		} catch (TemplateException|IOException te ) {
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
+		} catch  (SAXException sxe) {
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
+		} catch  (ParserConfigurationException pce) {
+		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(pce), pce);
+		}
+		return html; 
+  }
+	
+	public String convertWithIteration(Map<String, Object> map) {
+	    StringBuilder mapAsString = new StringBuilder("{");
+	    for (String key : map.keySet()) {
+	        mapAsString.append(key + "=" + map.get(key) + ", ");
+	    }
+	    mapAsString.delete(mapAsString.length()-2, mapAsString.length()).append("}");
+	    return mapAsString.toString();
+	}
+	
+	private static String convertStackTraceToString(Throwable throwable) 
+    {
+        try (StringWriter sw = new StringWriter(); 
+               PrintWriter pw = new PrintWriter(sw)) 
+        {
+            throwable.printStackTrace(pw);
+            return sw.toString();
+        } 
+        catch (IOException ioe) 
+        {
+            throw new IllegalStateException(ioe);
+        }
+    }  
 }
