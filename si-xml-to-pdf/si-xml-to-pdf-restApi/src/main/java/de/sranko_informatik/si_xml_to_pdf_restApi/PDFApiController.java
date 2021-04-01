@@ -69,6 +69,7 @@ public class PDFApiController
     			InputSource inputSource = new InputSource( new StringReader(req.getData()));
     			dataModel.put("xml", NodeModel.parse(inputSource));
     		} catch (IOException|SAXException|ParserConfigurationException ioe ) {
+    			System.out.println(req.getData());
     			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(ioe), ioe);
     		}
     		
@@ -78,6 +79,7 @@ public class PDFApiController
     		try {
     			dataModel.put("json", mapJson.readValue(req.getData(), Map.class));
     		} catch (JsonProcessingException sxe ) {
+    			System.out.println(req.getData());
     			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
     		}
             break; 
@@ -95,6 +97,7 @@ public class PDFApiController
 		try {
 			pdf = fgen.generatePDF(dataModel, tplName.getName(), Locale.GERMAN);
 		} catch (TemplateException|IOException te ) {
+			System.out.println(req.getData());
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
 		} catch  (SAXException sxe) {
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
@@ -135,6 +138,7 @@ public class PDFApiController
   			InputSource inputSource = new InputSource( new StringReader(req.getData()));
   			dataModel.put("xml", NodeModel.parse(inputSource));
   		} catch (IOException|SAXException|ParserConfigurationException ioe ) {
+  			System.out.println(req.getData());
   			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(ioe), ioe);
   		}
   		
@@ -144,6 +148,7 @@ public class PDFApiController
   		try {
   			dataModel.put("json", mapJson.readValue(req.getData(), Map.class));
   		} catch (JsonProcessingException sxe ) {
+  			System.out.println(req.getData());
   			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
   		}
           break; 
@@ -161,6 +166,7 @@ public class PDFApiController
 		try {
 			html = fgen.generateHTML(dataModel, tplName.getName(), Locale.GERMAN);
 		} catch (TemplateException|IOException te ) {
+			System.out.println(req.getData());
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
 		} catch  (SAXException sxe) {
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
@@ -185,6 +191,7 @@ public class PDFApiController
                PrintWriter pw = new PrintWriter(sw)) 
         {
             throwable.printStackTrace(pw);
+            System.out.println(sw.toString());
             return sw.toString();
         } 
         catch (IOException ioe) 
