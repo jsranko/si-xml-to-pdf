@@ -1,7 +1,13 @@
 # si-xml-to-pdf
 [![build](https://github.com/jsranko/si-xml-to-pdf/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/jsranko/si-xml-to-pdf/actions/workflows/maven.yml)
 
-si-xml-to-pdf ist ein Opensource Projekt, womit Daten (im XML/JSON Format) auf Basis von [Apache FreeMarker](https://freemarker.apache.org "Apache FreeMarker") Templates über Rest WebServices ins HTML/PDF umgewandelt werden können.
+si-xml-to-pdf ist ein Opensource Projekt, womit Daten (im XML/JSON Format) auf Basis von [Apache FreeMarker](https://freemarker.apache.org "Apache FreeMarker") Templates über Rest WebServices-Calls ins HTML/PDF umgewandelt werden können.
+
+## Warum si-xml-to-pdf?
+si-xml-to-pdf ist für alle geignet die
+* DDS basierte Druckausgaben modernisieren, mit Bilder, QR-Codes, Barcodes oder grafischen Elementen anreichen möchten
+* eine Druckausgabe (Rechnung, Auftragsbestätigung, ...) im PDF Format benötigen oder kostengünstig generieren möchten 
+* ein Beispiel suchen, wie man mit OpenSource eine Modernisierung realisieren könnte
 
 ## Vorbeiretung
 Opensource Pakete **git**, **maven** müssen installiert sein.
