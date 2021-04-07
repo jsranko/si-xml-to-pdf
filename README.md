@@ -25,18 +25,20 @@ git -c http.sslVerify=false clone https://github.com/jsranko/si-xml-to-pdf.git
 ```
 
 ## Build project
-
+Kompletes Projekt erstellen:
 ```
 cd si-xml-to-pdf/si-xml-to-pdf
 gmake
 ```
-
+Nur War-Datei erstellen:
 ```
-gmake project
+gmake war
 ```
+Nur Beispiel erstellen:
 ```
 gmake example
 ```
+War-Datei erstellen und War-Datei installieren/deploy
 ```
 gmake deploy
 ```
