@@ -6,22 +6,20 @@ si-xml-to-pdf ist ein Opensource Projekt, womit Daten (im XML/JSON Format) auf B
 ## Vorbeiretung
 Opensource Pakete **git**, **maven** müssen installiert sein.
 
-### Install git und maven
-For installation execute the following command:
+### Abhängigkeiten installieren
 ```
 yum install git, maven
 ```
 
-### Set PATH variable
-Extend the environment variable PATH, so that the OpenSource packages do not have to enter qualified:
+### PATH Variable setzen
+IBM i Open Source Pakete in PATH Variable setzen:
 ```
 export PATH=/QOpenSys/pkgs/bin:$PATH
 ```
 
 ## Installation
 
-### Clone project
-A local copy of the project must be created:
+### Clone Projekt
 ```
 git -c http.sslVerify=false clone https://github.com/jsranko/si-xml-to-pdf.git
 ```
@@ -30,14 +28,17 @@ git -c http.sslVerify=false clone https://github.com/jsranko/si-xml-to-pdf.git
 
 ```
 cd si-xml-to-pdf/si-xml-to-pdf
-mvn package
-```
-
-## Build example
-
-```
-cd si-xml-to-pdf/si-xml-to-pdf
 gmake
+```
+
+```
+gmake project
+```
+```
+gmake example
+```
+```
+gmake deploy
 ```
 
 ## Credits
