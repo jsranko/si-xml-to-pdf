@@ -16,7 +16,7 @@
 //==========================================================================================
 
 ctl-opt NoMain;
-ctl-opt bnddir('$(LIBRARY)/SIIIA');
+ctl-opt bnddir('$(LIB_SIIIA)/SIIIA');
  //ctl-opt stgmdl(*teraspace);
 
 //==========================================================================================
@@ -33,12 +33,12 @@ ctl-opt bnddir('$(LIBRARY)/SIIIA');
 //==========================================================================================
 
 /define SIXTP
-/include $(LIBRARY)/qcpylesrc/sixtpp
+/include $(INC_SIXTP)/qcpylesrc/sixtpp
 
-/include $(LIBRARY)/qcpylesrc/memcpyp
-/include $(LIBRARY)/qcpylesrc/sisqlp
-/include $(LIBRARY)/qcpylesrc/sijlp
-/include $(LIBRARY)/qcpylesrc/systemp
+/include $(INC_SIXTP)/qcpylesrc/memcpyp
+/include $(INC_SIXTP)/qcpylesrc/sisqlp
+/include $(INC_SIXTP)/qcpylesrc/sijlp
+/include $(INC_SIXTP)/qcpylesrc/systemp
 
 //==========================================================================================
 // Procedures
