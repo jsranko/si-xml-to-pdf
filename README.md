@@ -12,15 +12,15 @@ si-xml-to-pdf ist für alle geignet die
 ## Vorbeiretung
 Opensource Pakete **git**, **maven** müssen installiert sein.
 
-### Abhängigkeiten installieren
-```
-yum install git, maven
-```
-
 ### PATH Variable setzen
 IBM i Open Source Pakete in PATH Variable setzen:
 ```
 export PATH=/QOpenSys/pkgs/bin:$PATH
+```
+
+### Abhängigkeiten installieren
+```
+yum install git, maven
 ```
 
 ## Installation
