@@ -1,4 +1,6 @@
 # si-xml-to-pdf
+[![build](https://github.com/jsranko/si-xml-to-pdf/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/jsranko/si-xml-to-pdf/actions/workflows/maven.yml)
+
 si-xml-to-pdf ist ein Opensource Projekt, womit Daten (im XML/JSON Format) auf Basis von [Apache FreeMarker](https://freemarker.apache.org "Apache FreeMarker") Templates über Rest WebServices ins HTML/PDF umgewandelt werden können.
 
 ## Vorbeiretung
