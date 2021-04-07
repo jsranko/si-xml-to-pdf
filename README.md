@@ -38,6 +38,9 @@ cd si-xml-to-pdf/si-xml-to-pdf
 gmake
 ```
 
-## Project Links
-.... to Freemarkter
-.... to Openhtmlpdf
+# CREDITS
+si-xml-to-pdf basiert auf
+1. [OPEN HTML TO PDF](https://github.com/danfickle/openhtmltopdf)
+2. [Apache FreeMarker](https://github.com/apache/freemarker)
+
+Der Dank geht an die Mitwirkenden dieses Projekts.
