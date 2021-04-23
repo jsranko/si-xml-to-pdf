@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
+import java.io.Reader;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -36,14 +37,16 @@ import java.lang.StringBuilder;
 
 @RestController
 public class PDFApiController {
+	
 	@RequestMapping(
 			  value = "/getPDF", 
 			  method = RequestMethod.POST, 
-			  headers = "Accept=application/json",
 			  produces = MediaType.APPLICATION_PDF_VALUE)
-	public @ResponseBody byte[] getPDF(@RequestBody String payload) throws FileNotFoundException {
+	public @ResponseBody byte[] getPDF(@RequestBody String payload) 
+	{
+		InputSource inputSource = null;
 		byte[] pdf;
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		JSONPayload req;
@@ -51,15 +54,13 @@ public class PDFApiController {
 		try {
 			req = mapper.readValue(payload, JSONPayload.class);
 
-			File templateFile = new File(req.getTemplate());
-
 			Map dataModel = new HashMap();
 			ObjectMapper mapJson = new ObjectMapper();
 
 			switch (req.getDatenTyp()) {
 
 			case "xml":
-				InputSource inputSource = new InputSource(new StringReader(req.getData()));
+				inputSource = new InputSource(new StringReader(req.getData()));
 				dataModel.put("xml", NodeModel.parse(inputSource));
 				break;
 			default:
@@ -67,22 +68,29 @@ public class PDFApiController {
 				break;
 			}
 
+			File templateFile = new File(req.getTemplate());
 			FreemarkerGenerator fgen;
 			fgen = new FreemarkerGenerator(templateFile.getParent());
 
 			File tplName = new File(req.getTemplate());
-
 			pdf = fgen.generatePDF(dataModel, tplName.getName(), Locale.GERMAN);
 
 		} catch (JsonProcessingException sxe) {
+			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
-		} catch (IOException ioe) {
+		} catch (FileNotFoundException fnfe ) {
+  			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(fnfe), fnfe);
+  		} catch (IOException ioe) {
+			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, convertStackTraceToString(ioe), ioe);
 		} catch (TemplateException te) {
+			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
 		} catch (SAXException sxe) {
+			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
 		} catch (ParserConfigurationException pce) {
+			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(pce), pce);
 		}
 
@@ -92,13 +100,13 @@ public class PDFApiController {
 	@RequestMapping(
 			  value = "/getHTML",
 			  method = RequestMethod.POST,
-			  headers = "Accept=application/json",
 			  produces = MediaType.TEXT_HTML_VALUE
 			)
   public @ResponseBody String getHTML(@RequestBody String payload) throws FileNotFoundException 
   {
+		InputSource inputSource = null;
 		String html;
-		
+			
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		JSONPayload req;
@@ -107,7 +115,6 @@ public class PDFApiController {
 			
 			req = mapper.readValue(payload, JSONPayload.class);
 			
-			File templateFile = new File(req.getTemplate());
 
 			Map dataModel = new HashMap();
 			ObjectMapper mapJson = new ObjectMapper();
@@ -115,7 +122,7 @@ public class PDFApiController {
 			switch(req.getDatenTyp()){ 
 			case "xml": 
 	  		
-	  			InputSource inputSource = new InputSource( new StringReader(req.getData()));
+	  			inputSource = new InputSource( new StringReader(req.getData()));
 	  			dataModel.put("xml", NodeModel.parse(inputSource));
 	  		    break; 
 			default: 
@@ -123,35 +130,34 @@ public class PDFApiController {
 				break; 
 			}
 			
+			File templateFile = new File(req.getTemplate());
 			FreemarkerGenerator fgen;
 			fgen = new FreemarkerGenerator(templateFile.getParent());
 			
 			File tplName = new File(req.getTemplate());
 			html = fgen.generateHTML(dataModel, tplName.getName(), Locale.GERMAN);
 			
-		} catch (JsonProcessingException sxe ) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(sxe), sxe);
+		} catch (JsonProcessingException jpe ) {
+			System.out.println(payload);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(jpe), jpe);
 		} catch (SAXException ioe ) {
+			System.out.println(payload);
   			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(ioe), ioe);
+  		} catch (FileNotFoundException fnfe ) {
+  			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(fnfe), fnfe);
   		} catch (IOException ioe ) {
+  			System.out.println(payload);
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, convertStackTraceToString(ioe), ioe);
 		} catch (TemplateException te ) {
+			System.out.println(payload);
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(te), te);
 		} catch  (ParserConfigurationException pce) {
+			System.out.println(payload);
 		    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, convertStackTraceToString(pce), pce);
 		}
 		
 		return html; 
   }
-
-	public String convertWithIteration(Map<String, Object> map) {
-		StringBuilder mapAsString = new StringBuilder("{");
-		for (String key : map.keySet()) {
-			mapAsString.append(key + "=" + map.get(key) + ", ");
-		}
-		mapAsString.delete(mapAsString.length() - 2, mapAsString.length()).append("}");
-		return mapAsString.toString();
-	}
 
 	private static String convertStackTraceToString(Throwable throwable) {
 		try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
@@ -161,5 +167,10 @@ public class PDFApiController {
 		} catch (IOException ioe) {
 			throw new IllegalStateException(ioe);
 		}
+	}
+	
+	private static String convertInputSourceToString(InputSource is) {
+		Reader reader = is.getCharacterStream();
+		return reader.toString();
 	}
 }

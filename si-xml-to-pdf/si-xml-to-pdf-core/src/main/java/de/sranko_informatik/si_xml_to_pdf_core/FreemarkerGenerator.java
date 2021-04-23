@@ -37,8 +37,9 @@ public class FreemarkerGenerator {
 		cfg.setTagSyntax(Configuration.SQUARE_BRACKET_TAG_SYNTAX);
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setOutputEncoding("UTF-8");
-		cfg.setLocale(Locale.ENGLISH);
-		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.DEBUG_HANDLER);		
+		cfg.setLocale(Locale.GERMAN);
+		//cfg.setTemplateExceptionHandler(TemplateExceptionHandler.DEBUG_HANDLER);		
+		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		this.builder = new PdfRendererBuilder();
 	}
 	
@@ -89,7 +90,8 @@ public class FreemarkerGenerator {
 		
 		StringWriter stringWriter = new StringWriter();
 		cfg.setDirectoryForTemplateLoading(templateDir);
-		cfg.getTemplate(templateName, locale, "UTF-8").process(modelData, stringWriter);
+		//cfg.getTemplate(templateName, locale, "UTF-8").process(modelData, stringWriter);
+		cfg.getTemplate(templateName, "UTF-8").process(modelData, stringWriter);
 		return stringWriter.toString();
 	}
     
